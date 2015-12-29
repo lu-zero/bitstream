@@ -1,51 +1,8 @@
 use std;
-use std::io::{self, Read};
+use std::io::Read;
 use std::marker::PhantomData;
-use std::{fmt, error, convert};
 
 use util::*;
-
-const DEFAULT_BUFFER_SIZE : u32 = 4096; // 4KB buffer
-const MIN_AVAILABLE : usize = 4; // Minimum number of words in the buffer at any given time
-
-pub type Result<T> = std::result::Result<T, Error>;
-
-#[derive(Debug)]
-pub enum Error {
-    UnexpectedEOF,
-    Io(io::Error)
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Error::UnexpectedEOF => f.write_str("Unexpected End-Of-File"),
-            Error::Io(ref io) => fmt::Display::fmt(io, f)
-        }
-    }
-}
-
-impl convert::From<io::Error> for Error {
-    fn from(io: io::Error) -> Error {
-        Error::Io(io)
-    }
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::UnexpectedEOF => "Unexpected End-Of-File",
-            Error::Io(ref io) => io.description()
-        }
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
-        match *self {
-            Error::Io(ref io) => Some(io),
-            _ => None
-        }
-    }
-}
 
 /// `BitReader` reads an input stream as a stream of bits (instead of the normal byte-level).
 pub struct BitReader<R: Read + ?Sized, E: Endianess> {
